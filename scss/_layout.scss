@@ -1,0 +1,40 @@
+.list-container {
+	padding: 1rem 2rem;
+	border: 1px solid hsl(180, 10, 10);
+
+	.list-item,
+	.list-header {
+		display: grid;
+		grid-template-columns: 4rem 1fr 1fr 1fr 8rem 8rem 6rem;
+		grid-gap: 1rem;
+		padding: 0.5rem;
+		border-top: 1px solid hsl(180, 10, 50);
+
+		background-color: hsl(180, 10, 100);
+		opacity: 1;
+		transition: background-color 0.25s linear, opacity 0.5s linear;
+
+		&:first-child {
+			border-top: none;
+		}
+		&.delete-highlight {
+			background-color: hsl(0, 65%, 75%);
+		}
+		&.fade {
+			opacity: 0;
+		}
+		&.duplicate-highlight {
+			background-color: hsl(120, 65%, 85%);
+		}
+		&.fade {
+			opacity: 0;
+		}
+		&.highlight {
+			background-color: hsl(180, 10, 85);
+		}
+	}
+}
+.list-container {
+	margin: 1rem 0;
+	padding: 1rem 2rem;
+}

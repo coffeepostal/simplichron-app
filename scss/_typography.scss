@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('../node_modules/remixicon/fonts/remixicon.css');
+
+body {
+	font-family: 'Space Mono', monospace;
+	color: hsl(180, 10, 20);
+}
+
+a {
+	color: hsl(180, 10, 30);
+	transition: color 0.25s linear;
+	text-decoration: none;
+	&:hover {
+		color: hsl(180, 10, 10);
+		text-decoration: underline;
+	}
+
+	&.control {
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}
+
+.list-container {
+	.list-header {
+		font-weight: 700;
+		text-transform: uppercase;
+	}
+
+	.list-item {
+		.time-controls,
+		.item-controls {
+			i {
+				cursor: pointer;
+			}
+		}
+	}
+}
+.list-controls {
+	i {
+		cursor: pointer;
+		&.control {
+			font-size: 1.5rem;
+		}
+	}
+}
