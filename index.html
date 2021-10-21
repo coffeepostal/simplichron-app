@@ -11,10 +11,92 @@
 		<title>Hello World!</title>
 	</head>
 	<body>
-		<h1>Hello World!</h1>
-		We are using Node.js <span id="node-version"></span>, Chromium
-		<span id="chrome-version"></span>, and Electron
-		<span id="electron-version"></span>.
+		<div id="project-list" class="list-container">
+			<div id="header" class="list-header">
+				<div class="time-controls">Timer</div>
+				<div class="task">Task</div>
+				<div class="project">Project</div>
+				<div class="client">Client</div>
+				<div class="total-time">Total Time</div>
+				<div class="start-date">Start Date</div>
+				<div class="item-controls"></div>
+			</div>
+			<div id="id-" class="list-item">
+				<div class="time-controls">
+					<i id="play" class="ri-play-line"></i>
+					<i id="stop" class="ri-stop-line"></i>
+				</div>
+				<div class="task">Layout Updates</div>
+				<div class="project">
+					<a href="#" data-client-id="001" data-project-id="001"
+						>Magazine Ad</a
+					>
+				</div>
+				<div class="client">
+					<a href="#" data-client-id="001">Industrious Industries</a>
+				</div>
+				<div class="total-time">00:00:00</div>
+				<div class="start-date">8-12-2021</div>
+				<div class="item-controls">
+					<i id="edit" title="Edit Task" class="ri-edit-box-line"></i>
+					<i
+						id="duplicate"
+						title="Duplicate Task"
+						class="ri-file-copy-line"
+					></i>
+					<i
+						id="archive"
+						title="Archive Task"
+						class="ri-archive-line"
+					></i>
+					<i
+						id="delete"
+						title="Delete Task"
+						class="ri-delete-bin-2-line"
+					></i>
+				</div>
+			</div>
+		</div>
+
+		<div id="project-list-controls" class="list-controls">
+			<i id="add" class="ri-add-line control"></i>
+		</div>
+
+		<template id="list-item">
+			<div id="id-" class="list-item">
+				<div class="time-controls">
+					<i id="play" class="ri-play-line"></i>
+					<i id="stop" class="ri-stop-line"></i>
+				</div>
+				<div class="project">
+					<a href="#" data-client-id="001" data-project-id="001"></a>
+				</div>
+				<div class="task"></div>
+				<div class="client">
+					<a href="#" data-client-id="001"></a>
+				</div>
+				<div class="total-time">00:00:00</div>
+				<div class="start-date">MM-DD-YYYY</div>
+				<div class="item-controls">
+					<i id="edit" title="Edit Task" class="ri-edit-box-line"></i>
+					<i
+						id="duplicate"
+						title="Duplicate Task"
+						class="ri-file-copy-line"
+					></i>
+					<i
+						id="archive"
+						title="Archive Task"
+						class="ri-archive-line"
+					></i>
+					<i
+						id="delete"
+						title="Delete Task"
+						class="ri-delete-bin-2-line"
+					></i>
+				</div>
+			</div>
+		</template>
 
 		<!-- You can also require other files to run in this process -->
 		<script src="./renderer.js"></script>
