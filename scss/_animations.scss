@@ -1,0 +1,34 @@
+section,
+article {
+	background-color: hsl(180, 0, 100);
+	opacity: 1;
+
+	transition: background-color 0.25s, opacity 0.25s;
+
+	&.fast {
+		transition: background-color 0.125s, opacity 0.125s;
+	}
+}
+
+.hide {
+	opacity: 0;
+}
+
+.hidden {
+	display: none;
+}
+
+.highlight {
+	&.active {
+		background-color: hsl(180, 10, 90);
+	}
+	&.delete {
+		background-color: hsl(0, 50%, 85%);
+	}
+	&.duplicate {
+		background-color: hsl(190, 90%, 85%);
+	}
+	&.edit {
+		background-color: hsl(60, 65%, 85%);
+	}
+}

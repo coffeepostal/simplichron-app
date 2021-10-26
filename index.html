@@ -11,7 +11,12 @@
 		<title>SimpliChron</title>
 	</head>
 	<body>
-		<div id="project-list" class="list-container">
+		<header class="header">
+			<h1>SimpliChron</h1>
+			<i id="settings-open" class="ri-settings-5-line ri-2x"></i>
+		</header>
+		<section id="project-list" class="list-container">
+			<header><i class="ri-timer-fill"></i> Current Projects</header>
 			<div id="header" class="list-header">
 				<div class="time-controls">Timer</div>
 				<div class="task">Task</div>
@@ -21,22 +26,18 @@
 				<div class="start-date">Start Date</div>
 				<div class="item-controls"></div>
 			</div>
-			<div id="id-" class="list-item">
+			<article id="1" class="list-item" data-archived="false">
 				<div class="time-controls">
-					<i id="play" class="ri-play-line"></i>
-					<i id="stop" class="ri-stop-line"></i>
+					<i id="play" class="ri-play-fill ri-xl"></i>
 				</div>
 				<div class="task">Layout Updates</div>
 				<div class="project">
-					<a href="#" data-client-id="001" data-project-id="001"
-						>Magazine Ad</a
-					>
+					Magazine Ad
 				</div>
-				<div class="client">
-					<a href="#" data-client-id="001">Industrious Industries</a>
+				<div class="client">Industrious Industries
 				</div>
-				<div class="total-time">00:00:00</div>
-				<div class="start-date">8-12-2021</div>
+				<div class="total-time">02:34:12</div>
+				<div class="start-date">9-13-2021</div>
 				<div class="item-controls">
 					<i id="edit" title="Edit Task" class="ri-edit-box-line"></i>
 					<i
@@ -55,25 +56,130 @@
 						class="ri-delete-bin-2-line"
 					></i>
 				</div>
+			</article>
+		</section>
+
+		<section id="archived-list" class="list-container archived">
+			<header>
+				<a href="" id="archivedToggle"><i class="ri-archive-fill"></i> Archived Projects</a>
+			</header>
+			<div id="header" class="list-header">
+				<div class="time-controls"></div>
+				<div class="task">Task</div>
+				<div class="project">Project</div>
+				<div class="client">Client</div>
+				<div class="total-time">Total Time</div>
+				<div class="start-date">Start Date</div>
 			</div>
-		</div>
 
-		<div id="project-list-controls" class="list-controls">
-			<i id="add" class="ri-add-line control"></i>
-		</div>
-
-		<template id="list-item">
-			<div id="id-" class="list-item">
-				<div class="time-controls">
-					<i id="play" class="ri-play-line"></i>
-					<i id="stop" class="ri-stop-line"></i>
+			<article id="0" class="list-item" data-archived="true">
+				<div class="reinstate">
+					<i class="ri-refresh-fill ri-xl" title="Reinstate Task"></i>
 				</div>
+				<div class="task">Archived Task</div>
 				<div class="project">
-					<a href="#" data-client-id="001" data-project-id="001"></a>
+					Archived Project
+				</div>
+				<div class="client">Archived Client
+				</div>
+				<div class="total-time">02:34:12</div>
+				<div class="start-date">8-12-2021</div>
+			</article>
+		</section>
+
+		<section id="project-list-controls" class="list-controls">
+			<i id="add" class="ri-add-line control"></i>
+		</sec>
+
+		<template id="modal">
+			<section class="modal-container hide">
+				<div class="modal-content"></div>
+			</section>
+		</template>
+
+		<template id="modal-archive-delete">
+			<section class="modal-container hide">
+				<div class="modal-content archive-delete">
+					<h2>Archive Task</h2>
+					<p>Do you want to archive this task?</p>
+					<div class="buttons">
+						<button id="yesModal"><i class="ri-archive-fill"></i> Yes</button>
+						<button id="noModal"><i class="ri-close-fill"></i> No</button>
+					</div>
+				</div>
+			</section>
+		</template>
+
+		<template id="modal-create-edit">
+			<section class="modal-container hide">
+				<div class="modal-content create-edit">
+					<h2>Create Task</h2>
+					<div class="form">
+						<label for="task">Task</label>
+						<input type="text" name="task" id="task">
+						<label for="project">Project</label>
+						<input type="text" name="project" id="project">
+						<label for="client">Client</label>
+						<input type="text" name="client" id="client">
+					</div>
+					<div class="buttons">
+						<button id="saveModal"><i class="ri-save-fill"></i> Save</button>
+						<button id="cancelModal"><i class="ri-close-line"></i> Cancel</button>
+					</div>
+				</div>
+			</section>
+		</template>
+
+		<template id="modal-settings">
+			<section id="settings" class="modal-container hide">
+				<div class="modal-content settings">
+					<header class="header">
+						<h2>Settings</h2>
+						<i id="settings-close" class="ri-close-line ri-2x"></i>
+						<div class="settings-list-container">
+							<div class="settings-list">
+								<h3>Settings Title</h3>
+								<dl>
+									<dt><input type="checkbox" name="" id=""></dt>
+									<dd>Setting text</dd>
+								</dl>
+							</div>
+							<div class="settings-list">
+
+								<h3>Settings Title</h3>
+								<dl>
+									<dt><input type="checkbox" name="" id=""></dt>
+									<dd>Setting text</dd>
+								</dl>
+							</div>
+						</div>
+					</header>
+				</div>
+			</section>
+		</template>
+
+		<template id="archived-list-item">
+			<article id="xxx" class="list-item" data-archived="true">
+				<div class="reinstate">
+					<i class="ri-refresh-fill ri-xl" title="Reinstate Task"></i>
 				</div>
 				<div class="task"></div>
+				<div class="project"></div>
+				<div class="client"></div>
+				<div class="total-time"></div>
+				<div class="start-date"></div>
+			</article>
+		</template>
+
+		<template id="list-item">
+			<article id="xxxx" class="list-item" data-archived="false">
+				<div class="time-controls">
+					<i id="play" class="ri-play-fill ri-xl"></i>
+				</div>
+				<div class="task"></div>
+				<div class="project">
+				</div>
 				<div class="client">
-					<a href="#" data-client-id="001"></a>
 				</div>
 				<div class="total-time">00:00:00</div>
 				<div class="start-date">MM-DD-YYYY</div>
@@ -95,7 +201,7 @@
 						class="ri-delete-bin-2-line"
 					></i>
 				</div>
-			</div>
+			</article>
 		</template>
 
 		<!-- You can also require other files to run in this process -->

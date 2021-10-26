@@ -1,0 +1,36 @@
+{
+	"tasks": {
+		"1": {
+			"task": "Layout Updates",
+			"project": "Magazine Ad",
+			"client": "Industrious Industries",
+			"time": 9252,
+			"startDate": "2021-10-22T23:35:11.179Z",
+			"archived": false
+		},
+		"2": {
+			"task": "Text Updates",
+			"project": "Website",
+			"client": "ACME Creative",
+			"time": 478,
+			"startDate": "2021-10-20T21:12:21.179Z",
+			"archived": false
+		},
+		"3": {
+			"task": "Sign Carving",
+			"project": "New Signage",
+			"client": "Island Optometry",
+			"time": 123,
+			"startDate": "2021-09-20T13:42:31.179Z",
+			"archived": false
+		}
+	},
+	"clientList": {
+		"1": "Industrious Industries",
+		"2": "ACME Creative"
+	},
+	"currentID": 2,
+	"settings": {
+		"styleMode": "light"
+	}
+}
