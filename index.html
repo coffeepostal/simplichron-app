@@ -26,7 +26,7 @@
 				<div class="start-date">Start Date</div>
 				<div class="item-controls"></div>
 			</div>
-			<article id="1" class="list-item" data-archived="false">
+			<!-- <article id="1" class="list-item" data-archived="false">
 				<div class="time-controls">
 					<i id="play" class="ri-play-fill ri-xl"></i>
 				</div>
@@ -56,7 +56,7 @@
 						class="ri-delete-bin-2-line"
 					></i>
 				</div>
-			</article>
+			</article> -->
 		</section>
 
 		<section id="archived-list" class="list-container archived">
@@ -72,7 +72,7 @@
 				<div class="start-date">Start Date</div>
 			</div>
 
-			<article id="0" class="list-item" data-archived="true">
+			<!-- <article id="0" class="list-item" data-archived="true">
 				<div class="reinstate">
 					<i class="ri-refresh-fill ri-xl" title="Reinstate Task"></i>
 				</div>
@@ -84,12 +84,14 @@
 				</div>
 				<div class="total-time">02:34:12</div>
 				<div class="start-date">8-12-2021</div>
-			</article>
+			</article> -->
 		</section>
 
 		<section id="project-list-controls" class="list-controls">
 			<i id="add" class="ri-add-line control"></i>
 		</sec>
+
+		<span id="test">Test</span>
 
 		<template id="modal">
 			<section class="modal-container hide">
@@ -103,8 +105,8 @@
 					<h2>Archive Task</h2>
 					<p>Do you want to archive this task?</p>
 					<div class="buttons">
-						<button id="yesModal"><i class="ri-archive-fill"></i> Yes</button>
-						<button id="noModal"><i class="ri-close-fill"></i> No</button>
+						<button id="modalYesArchiveDelete"><i class="ri-archive-fill"></i> Yes</button>
+						<button id="modalCancel"><i class="ri-close-fill"></i> Cancel</button>
 					</div>
 				</div>
 			</section>
@@ -123,8 +125,8 @@
 						<input type="text" name="client" id="client">
 					</div>
 					<div class="buttons">
-						<button id="saveModal"><i class="ri-save-fill"></i> Save</button>
-						<button id="cancelModal"><i class="ri-close-line"></i> Cancel</button>
+						<button id="modalSaveCreate"><i class="ri-save-fill"></i> Save</button>
+						<button id="modalCancel"><i class="ri-close-line"></i> Cancel</button>
 					</div>
 				</div>
 			</section>

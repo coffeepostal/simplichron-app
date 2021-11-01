@@ -1,14 +1,17 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
+
+// Define mainWindow
+let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 1280,
+  mainWindow = new BrowserWindow({
+    width: 1730,
     height: 720,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(app.getAppPath(), 'preload.js')
     }
   })
 
@@ -16,7 +19,7 @@ function createWindow () {
   mainWindow.loadFile('index.html')
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
@@ -39,5 +42,51 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+// In this file you can include the rest of your app's specific main process code. You can also put them in separate files and require them here.
+
+//--------------------------//
+// Required Packages	    	//
+//--------------------------//
+
+const fs = require('fs')
+
+//--------------------------//
+// ipc Requests	           	//
+//--------------------------//
+
+
+// Add Tasks
+ipcMain.on('task:add', (event, dataset) => {
+
+  // Read the JSON file
+  fs.readFile('./data/data.json', 'utf8', (err, jsonString) => {
+
+    // Throw error to console if there is one
+    if (err) {
+      console.log("File read failed:", err)
+      return
+    }
+
+    // Send returned JSON data to mainWindow
+    mainWindow.webContents.send('tasks.return', jsonString)
+
+  })
+})
+
+// Get Tasks
+ipcMain.on('task:get', (event, dataset) => {
+
+  // Read the JSON file
+  fs.readFile('./data/data.json', 'utf8', (err, jsonString) => {
+
+    // Throw error to console if there is one
+    if (err) {
+      console.log("File read failed:", err)
+      return
+    }
+
+    // Send returned JSON data to mainWindow
+    mainWindow.webContents.send('tasks.return', jsonString)
+
+  })
+})
