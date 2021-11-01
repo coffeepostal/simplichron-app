@@ -19,6 +19,7 @@
 		"electron": "^15.2.0"
 	},
 	"dependencies": {
+		"lowdb": "^3.0.0",
 		"remixicon": "^2.5.0"
 	}
 }
