@@ -23,11 +23,32 @@
 			"time": 123,
 			"startDate": "2021-09-20T13:42:31.179Z",
 			"archived": false
+		},
+		"4": {
+			"task": "Archived Task",
+			"project": "Archived Project",
+			"client": "Island Optometry",
+			"time": 1285,
+			"startDate": "2021-04-30T15:12:00.000Z",
+			"archived": true
 		}
 	},
 	"clientList": {
-		"1": "Industrious Industries",
-		"2": "ACME Creative"
+		"Industrious Industries": {
+			"projects": {
+				"0": "Magazine Ad"
+			}
+		},
+		"ACME Creative": {
+			"projects": {
+				"0": "Website"
+			}
+		},
+		"Island Optometry": {
+			"projects": {
+				"0": "New Signage"
+			}
+		}
 	},
 	"currentID": 2,
 	"settings": {
