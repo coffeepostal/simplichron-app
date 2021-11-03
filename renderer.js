@@ -520,11 +520,11 @@ function modalLaunchArchiveDelete(id) {
 	// Get template and clone it
 	const cloneTmpl = tmplModalArchiveDelete.content.cloneNode(true)
 
-	// Set clone's id
-	clone.setAttribute('data-task-id', id)
-
 	// Set clone as variable
 	const clone = cloneTmpl.querySelector('.modal-container')
+
+	// Set clone's id
+	clone.setAttribute('data-task-id', id)
 
 	// If modal is a delete modal
 	if (modalState === 'delete') {
