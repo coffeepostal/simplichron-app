@@ -1,25 +1,60 @@
 {
-	"name": "simplichron-app",
-	"version": "1.0.0",
-	"description": "A simple time tracker for busy people.",
-	"main": "main.js",
-	"scripts": {
-		"start": "electron ."
-	},
-	"repository": "https://github.com/electron/electron-quick-start",
-	"keywords": [
-		"Electron",
-		"quick",
-		"start",
-		"tutorial",
-		"demo"
-	],
-	"author": "FarnsCo",
-	"devDependencies": {
-		"electron": "^15.2.0"
-	},
-	"dependencies": {
-		"lowdb": "^3.0.0",
-		"remixicon": "^2.5.0"
-	}
+  "name": "simplichron-app",
+  "version": "1.0.0",
+  "description": "A simple time tracker for busy people.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "FarnsCo",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+    "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "electron": "^15.2.0"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0",
+    "lowdb": "^3.0.0",
+    "remixicon": "^2.5.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "simplichron_app"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  }
 }
