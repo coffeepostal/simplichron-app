@@ -26,37 +26,7 @@
 				<div class="start-date">Start Date</div>
 				<div class="item-controls"></div>
 			</div>
-			<!-- <article id="1" class="list-item" data-archived="false">
-				<div class="time-controls">
-					<i id="play" class="ri-play-fill ri-xl"></i>
-				</div>
-				<div class="task">Layout Updates</div>
-				<div class="project">
-					Magazine Ad
-				</div>
-				<div class="client">Industrious Industries
-				</div>
-				<div class="total-time">02:34:12</div>
-				<div class="start-date">9-13-2021</div>
-				<div class="item-controls">
-					<i id="edit" title="Edit Task" class="ri-edit-box-line"></i>
-					<i
-						id="duplicate"
-						title="Duplicate Task"
-						class="ri-file-copy-line"
-					></i>
-					<i
-						id="archive"
-						title="Archive Task"
-						class="ri-archive-line"
-					></i>
-					<i
-						id="delete"
-						title="Delete Task"
-						class="ri-delete-bin-2-line"
-					></i>
-				</div>
-			</article> -->
+
 		</section>
 
 		<section id="archived-list" class="list-container archived">
@@ -72,26 +42,11 @@
 				<div class="start-date">Start Date</div>
 			</div>
 
-			<!-- <article id="0" class="list-item" data-archived="true">
-				<div class="reinstate">
-					<i class="ri-refresh-fill ri-xl" title="Reinstate Task"></i>
-				</div>
-				<div class="task">Archived Task</div>
-				<div class="project">
-					Archived Project
-				</div>
-				<div class="client">Archived Client
-				</div>
-				<div class="total-time">02:34:12</div>
-				<div class="start-date">8-12-2021</div>
-			</article> -->
 		</section>
 
 		<section id="project-list-controls" class="list-controls">
 			<i id="add" class="ri-add-line control"></i>
 		</sec>
-
-		<span id="test">Test</span>
 
 		<template id="modal">
 			<section class="modal-container hide">
@@ -125,7 +80,7 @@
 						<input type="text" name="client" id="client">
 					</div>
 					<div class="buttons">
-						<button id="modalSaveCreate"><i class="ri-save-fill"></i> Save</button>
+						<button id="modalSaveCreateEdit"><i class="ri-save-fill"></i> Save</button>
 						<button id="modalCancel"><i class="ri-close-line"></i> Cancel</button>
 					</div>
 				</div>
@@ -163,7 +118,7 @@
 		<template id="archived-list-item">
 			<article id="xxx" class="list-item" data-archived="true">
 				<div class="reinstate">
-					<i class="ri-refresh-fill ri-xl" title="Reinstate Task"></i>
+					<i id="reinstate" class="ri-refresh-fill ri-xl" title="Reinstate Task"></i>
 				</div>
 				<div class="task"></div>
 				<div class="project"></div>

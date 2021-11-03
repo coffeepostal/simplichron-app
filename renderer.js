@@ -22,14 +22,14 @@
 
 const elemArchivedList = document.getElementById('archived-list')
 const elemCountdown = document.getElementById('timer')
-const elemProjectList = document.getElementById('project-list')
+const elemTaskList = document.getElementById('project-list')
 const elemSettings = document.getElementById('settings')
-const templateModalArchiveDelete = document.getElementById('modal-archive-delete')
-const templateModalCreateEdit = document.getElementById('modal-create-edit')
-const templateModalSettings = document.getElementById('modal-settings')
-const templateModal = document.getElementById('modal')
-const templateListItem = document.getElementById('list-item')
-const templateArchivedListItem = document.getElementById('archived-list-item')
+const tmplModalArchiveDelete = document.getElementById('modal-archive-delete')
+const tmplModalCreateEdit = document.getElementById('modal-create-edit')
+const tmplModalSettings = document.getElementById('modal-settings')
+const tmplModal = document.getElementById('modal')
+const tmplListItem = document.getElementById('list-item')
+const tmplArchivedListItem = document.getElementById('archived-list-item')
 
 //--------------------------//
 //	Variables				//
@@ -39,7 +39,6 @@ let interval = null
 let modalState = null
 let activeTask = null
 let activeTaskTime = 0
-let currentNewID = 0
 let currentTask = {
 	id: null,
 	task: "",
@@ -49,17 +48,18 @@ let currentTask = {
 	startDate: "",
 	archived: false
 }
-let clientList = {}
-let taskList = {}
-let settings = {}
+let localCache = {
+	tasks: {},
+	clients: {},
+	currentNewID: 0,
+	settings: {}
+}
 
 //--------------------------//
 //	Event Listeners			//
 //--------------------------//
 
 document.addEventListener('click', function (event) {
-
-	console.log(event.target)
 
 	// Play Event
 	if (event.target.matches('#play')) {
@@ -112,6 +112,17 @@ document.addEventListener('click', function (event) {
 	// Stop Event
 	if (event.target.matches('#stop')) {
 
+		// Save active task time to current task
+		currentTask = localCache.tasks[activeTask.id]
+		console.log(currentTask)
+		currentTask.time = activeTaskTime
+
+		// Save current task to local cache
+		localCache.tasks[activeTask.id] = currentTask
+
+		// Save local cache to local storage
+		ipcRenderer.send('db:send', localCache)
+
 		// Stop the interval
 		intervalStop(activeTask)
 
@@ -125,7 +136,7 @@ document.addEventListener('click', function (event) {
 		modalState = 'create'
 
 		// Launch modal
-		modalLaunchCreateEdit(currentNewID)
+		modalLaunchCreateEdit(localCache.currentNewID)
 
 		return
 	}
@@ -138,19 +149,11 @@ document.addEventListener('click', function (event) {
 		// Get task ID
 		let taskId = event.target.parentElement.parentElement.id
 
+		// Set current task
+		currentTask = localCache.tasks[taskId]
+
 		// Launch modal
 		modalLaunchCreateEdit(taskId)
-
-		return
-	}
-
-	// Save Event
-	if (event.target.matches('#save')) {
-
-		// Change class and id of edit/save
-		event.target.classList = 'ri-edit-box-line'
-		event.target.title = 'Edit Task'
-		event.target.id = 'edit'
 
 		return
 	}
@@ -176,6 +179,18 @@ document.addEventListener('click', function (event) {
 		return
 	}
 
+	// Archive Event
+	if (event.target.matches('#reinstate')) {
+
+		// Set the modal state
+		modalState = 'reinstate'
+
+		// Launch modal
+		modalLaunchReinstate(event.target.parentElement.parentElement.id)
+
+		return
+	}
+
 	// Delete Event
 	if (event.target.matches('#delete')) {
 
@@ -189,14 +204,24 @@ document.addEventListener('click', function (event) {
 	}
 
 	// Modal - Save Event
-	if (event.target.matches('#modalSaveCreate')) {
+	if (event.target.matches('#modalSaveCreateEdit')) {
 
 		// Set the modal container variable
 		let modalContainer =
 			event.target.parentElement.parentElement.parentElement
 
-		// Save the current values to task
-		saveTaskToDB(event.target, modalContainer.getAttribute('data-task-id'))
+		// Handle create/edit functionalities
+		if (modalState === 'create') {
+
+			// Save the current values to the db
+			saveTaskToDB(event.target, modalContainer.getAttribute('data-task-id'))
+
+		} else if (modalState === 'edit') {
+
+			// Save the current values to the db
+			saveTaskToDB(event.target, modalContainer.getAttribute('data-task-id'))
+
+		}
 
 		// Close the modal
 		modalClose(modalContainer)
@@ -225,16 +250,20 @@ document.addEventListener('click', function (event) {
 
 		if (modalState === 'archive') {
 
-			// Delete current node from UI
-			deleteNode(event.target.parentElement.parentElement)
-
-			// Archive current node
+			// Archive current task
 			archiveNode(modalContainer.dataset.taskId)
 		}
 
+		if (modalState === 'reinstate') {
+
+			// Archive current task
+			reinstateNode(modalContainer.dataset.taskId)
+		}
+
 		if (modalState === 'delete') {
-			// Delete current node
-			deleteNode(event.target.parentElement.parentElement)
+
+			// Delete current task
+			deleteTask(modalContainer.dataset.taskId)
 		}
 
 		// Close the modal
@@ -288,42 +317,104 @@ document.addEventListener('click', function (event) {
 
 function archiveNode(id) {
 
+	// Change the task archive status to true
+	localCache.tasks[id].archived = true
+
+	// Send local cache to db
+	ipcRenderer.send('db:send', localCache)
+
 	// Clone task template
-	let taskTemplateClone = templateArchivedListItem.content.cloneNode(true)
-	let taskTemplate = taskTemplateClone.querySelector('.list-item')
+	let taskTmplClone = tmplArchivedListItem.content.cloneNode(true)
+	let taskTmpl = taskTmplClone.querySelector('.list-item')
+
+	// Format the task date and time
+	const startDate = formatDateForHTML(localCache.tasks[id].startDate)
+	const formattedTime = formatTimeForHTML(localCache.tasks[id].time)
 
 	// Set archived task values in UI
-	taskTemplate.id = id
-	taskTemplate.querySelector('.task').innerText = taskList[id].task
-	taskTemplate.querySelector('.project').innerText = taskList[id].project
-	taskTemplate.querySelector('.client').innerText = taskList[id].client
-	taskTemplate.querySelector('.start-date').innerText = taskList[id].startDate
-	taskTemplate.dataset.archived = 'true'
+	taskTmpl.id = id
+	taskTmpl.querySelector('.task').innerText = localCache.tasks[id].task
+	taskTmpl.querySelector('.project').innerText = localCache.tasks[id].project
+	taskTmpl.querySelector('.client').innerText = localCache.tasks[id].client
+	taskTmpl.querySelector('.total-time').innerText = formattedTime
+	taskTmpl.querySelector('.start-date').innerText = startDate
+	taskTmpl.dataset.archived = 'true'
 
 	// Add hide class from cloned node
-	taskTemplate.classList.add('hide')
+	taskTmpl.classList.add('hide')
 
 	// Append clone to project list
-	elemArchivedList.appendChild(taskTemplate)
+	elemArchivedList.appendChild(taskTmpl)
 
 	// Set time out for 0.125 seconds
 	setTimeout(() => {
 
 		// Remove hide class from cloned node
-		taskTemplate.classList.remove('hide')
+		taskTmpl.classList.remove('hide')
 
 	}, 250)
 }
 
-function deleteNode(target) {
+function reinstateNode(id) {
+
+	// Change the task archive status to true
+	localCache.tasks[id].archived = false
+
+	// Send local cache to db
+	ipcRenderer.send('db:send', localCache)
+
+	// Clone task template
+	let taskTmplClone = tmplListItem.content.cloneNode(true)
+	let taskTmpl = taskTmplClone.querySelector('.list-item')
+
+	// Format the task date and time
+	const startDate = formatDateForHTML(localCache.tasks[id].startDate)
+	const formattedTime = formatTimeForHTML(localCache.tasks[id].time)
+
+	// Set archived task values in UI
+	taskTmpl.id = id
+	taskTmpl.querySelector('.task').innerText = localCache.tasks[id].task
+	taskTmpl.querySelector('.project').innerText = localCache.tasks[id].project
+	taskTmpl.querySelector('.client').innerText = localCache.tasks[id].client
+	taskTmpl.querySelector('.total-time').innerText = formattedTime
+	taskTmpl.querySelector('.start-date').innerText = startDate
+	taskTmpl.dataset.archived = 'true'
+
+	// Add hide class from cloned node
+	taskTmpl.classList.add('hide')
+
+	// Append clone to project list
+	elemTaskList.appendChild(taskTmpl)
+
+	// Set time out for 0.125 seconds
+	setTimeout(() => {
+
+		// Remove hide class from cloned node
+		taskTmpl.classList.remove('hide')
+
+	}, 250)
+}
+
+function deleteTask(target) {
+
+	const taskElem = document.getElementById(target)
 
 	// Change background color and hide out
-	target.classList.add('highlight', 'delete')
-	target.classList.add('hide')
+	taskElem.classList.add('highlight', 'delete')
+	taskElem.classList.add('hide')
 
 	// After 0.6 seconds remove the node
 	setTimeout(() => {
-		target.remove()
+
+		// Removed from DOM tree
+		taskElem.remove()
+
+		// Delete the task from the local cache
+		delete localCache.tasks[target]
+
+		// Send local cache to db
+		ipcRenderer.send('db:send', localCache)
+
 	}, 600)
 }
 
@@ -340,16 +431,16 @@ function duplicateNode(target) {
 		let node = target.cloneNode(true)
 
 		// Change clone node's ID
-		node.id = currentNewID
+		node.id = localCache.currentNewID
 
 		// Add class to clone node
 		node.classList.add('hide')
 
 		// Append clone to project list
-		elemProjectList.appendChild(node)
+		elemTaskList.appendChild(node)
 
 		// Increase current id
-		increasecurrentNewID()
+		increaseCurrentNewID()
 
 		// Set time out for 0.1 seconds
 		setTimeout(() => {
@@ -399,13 +490,13 @@ function formatTimeForHTML(time) {
 
 }
 
-function increasecurrentNewID() {
+function increaseCurrentNewID() {
 
 	// Update local variable
-	currentNewID++
+	localCache.currentNewID++
 
 	// Update the JSON file
-	// TODO ipcRenderer.send('currentNewID:update')
+	ipcRenderer.send('db:send', localCache)
 }
 
 function intervalStop(target) {
@@ -427,25 +518,59 @@ function intervalStop(target) {
 function modalLaunchArchiveDelete(id) {
 
 	// Get template and clone it
-	const cloneTemplate = templateModalArchiveDelete.content.cloneNode(true)
-
-	// Set clone as variable
-	const clone = cloneTemplate.querySelector('.modal-container')
+	const cloneTmpl = tmplModalArchiveDelete.content.cloneNode(true)
 
 	// Set clone's id
 	clone.setAttribute('data-task-id', id)
 
-	// If modal is an edit modal
+	// Set clone as variable
+	const clone = cloneTmpl.querySelector('.modal-container')
+
+	// If modal is a delete modal
 	if (modalState === 'delete') {
 
 		// Change the form title
 		clone.querySelector('h2').innerHTML = 'Delete Task'
 		clone.querySelector('p').innerHTML = 'Do you want to delete this task? This cannot be undone.'
 
+	} else if (modalState === 'reinstate') {
+
+		// Change the form title
+		clone.querySelector('h2').innerHTML = 'Reinstate Task'
+		clone.querySelector('p').innerHTML = 'Do you want to reinstate this task?'
+
 	}
 
-	// Append the clone to the body
-	document.body.prepend(cloneTemplate)
+	// Append the modal clone to the body
+	document.body.prepend(cloneTmpl)
+
+	// Take 0.1 seconds and remove hide
+	setTimeout(() => {
+		// Remove class to clone node
+		clone.classList.remove('hide')
+	}, 100)
+
+	return
+
+}
+
+function modalLaunchReinstate(id) {
+
+	// Get template and clone it
+	const cloneTmpl = tmplModalArchiveDelete.content.cloneNode(true)
+
+	// Set clone as variable
+	const clone = cloneTmpl.querySelector('.modal-container')
+
+	// Change the form title
+	clone.querySelector('h2').innerHTML = 'Reinstate Task'
+	clone.querySelector('p').innerHTML = 'Do you want to reinstate this task?'
+
+	// Set clone's id
+	clone.setAttribute('data-task-id', id)
+
+	// Append the modal clone to the body
+	document.body.prepend(cloneTmpl)
 
 	// Take 0.1 seconds and remove hide
 	setTimeout(() => {
@@ -460,10 +585,10 @@ function modalLaunchArchiveDelete(id) {
 function modalLaunchCreateEdit(id) {
 
 	// Get template and clone it
-	const cloneTemplate = templateModalCreateEdit.content.cloneNode(true)
+	const cloneTmpl = tmplModalCreateEdit.content.cloneNode(true)
 
 	// Set clone as variable
-	const clone = cloneTemplate.querySelector('.modal-container')
+	const clone = cloneTmpl.querySelector('.modal-container')
 
 	// Set clone's id
 	clone.setAttribute('data-task-id', id)
@@ -476,6 +601,7 @@ function modalLaunchCreateEdit(id) {
 
 		// Set current task
 		currentTask = {
+			id: id,
 			task: task.querySelector('.task').innerText,
 			project: task.querySelector('.project').innerText,
 			client: task.querySelector('.client').innerText,
@@ -494,7 +620,7 @@ function modalLaunchCreateEdit(id) {
 	}
 
 	// Append the clone to the body
-	document.body.prepend(cloneTemplate)
+	document.body.prepend(cloneTmpl)
 
 	// Take 0.1 seconds and remove hide
 	setTimeout(() => {
@@ -508,13 +634,13 @@ function modalLaunchCreateEdit(id) {
 function modalLaunchSettings() {
 
 	// Get template and clone it
-	const cloneTemplate = templateModalSettings.content.cloneNode(true)
+	const cloneTmpl = tmplModalSettings.content.cloneNode(true)
 
 	// Set clone as variable
-	const clone = cloneTemplate.querySelector('.modal-container')
+	const clone = cloneTmpl.querySelector('.modal-container')
 
 	// Append the clone to the body
-	document.body.prepend(cloneTemplate)
+	document.body.prepend(cloneTmpl)
 
 	// Take 0.1 seconds and remove hide
 	setTimeout(() => {
@@ -557,6 +683,8 @@ function resetCurrentTask() {
 
 function saveTaskToDB(target, id) {
 
+	console.log(modalState)
+
 	// Set form location
 	const form = target.parentElement.parentElement
 
@@ -565,7 +693,7 @@ function saveTaskToDB(target, id) {
 
 	// Set Current Task
 	currentTask = {
-		id: id,
+		id: parseInt(id, 10),
 		task: form.querySelector('[name=task]').value,
 		project: form.querySelector('[name=project]').value,
 		client: form.querySelector('[name=client]').value,
@@ -574,12 +702,18 @@ function saveTaskToDB(target, id) {
 		archived: false
 	}
 
+	// Add current task to cached tasks
+	localCache.tasks[currentTask.id] = currentTask
+
+	console.log(localCache.tasks)
+
 	// Run the correct function
 	if (modalState === 'create') {
 
-		// Send task to JSON file
-		ipcRenderer.send('task:add', currentTask)
+		// Increase current new ID
+		increaseCurrentNewID()
 
+		// Add task to UI
 		taskCreateUI()
 
 	} else if (modalState === 'edit') {
@@ -588,9 +722,13 @@ function saveTaskToDB(target, id) {
 
 	} else {
 
-		console.log(`HOW THE ACTUAL FUCK DID YOU NOT SET THE MODAL STATE?`)
+		console.error(`HOW THE ACTUAL FUCK DID YOU NOT SET THE MODAL STATE?`)
 
 	}
+
+	// Send task to JSON file
+	ipcRenderer.send('db:send', localCache)
+
 }
 
 function taskCreateUI() {
@@ -599,35 +737,45 @@ function taskCreateUI() {
 	const startDate = formatDateForHTML(currentTask.startDate)
 
 	// Clone task template
-	let taskTemplateClone = templateListItem.content.cloneNode(true)
-	let taskTemplate = taskTemplateClone.querySelector('.list-item')
+	let taskTmplClone = tmplListItem.content.cloneNode(true)
+	let appendElement = elemTaskList
+
+	// Check to see if task is archived
+	if (currentTask.archived) {
+
+		// Swap cloned task template for archived task template
+		taskTmplClone = tmplArchivedListItem.content.cloneNode(true)
+
+		// Set appendElement to the archived list
+		appendElement = elemArchivedList
+
+	}
+
+	let taskTmpl = taskTmplClone.querySelector('.list-item')
 
 	// Set task values
-	taskTemplate.id = currentTask.id
-	taskTemplate.querySelector('.task').innerHTML = currentTask.task
-	taskTemplate.querySelector('.project').innerHTML = currentTask.project
-	taskTemplate.querySelector('.client').innerHTML = currentTask.client
-	taskTemplate.querySelector(
+	taskTmpl.id = currentTask.id
+	taskTmpl.querySelector('.task').innerHTML = currentTask.task
+	taskTmpl.querySelector('.project').innerHTML = currentTask.project
+	taskTmpl.querySelector('.client').innerHTML = currentTask.client
+	taskTmpl.querySelector(
 		'.total-time'
 	).innerHTML = formatTimeForHTML(currentTask.time)
-	taskTemplate.querySelector(
+	taskTmpl.querySelector(
 		'.start-date'
 	).innerHTML = startDate
 
 	// Add class to clone node
-	taskTemplate.classList.add('hide')
+	taskTmpl.classList.add('hide')
 
-	// Append clone to project list
-	elemProjectList.appendChild(taskTemplate)
+	// Append clone to appropriate list
+	appendElement.appendChild(taskTmpl)
 
 	// Set time out for 0.1 seconds
 	setTimeout(() => {
 		// Remove class to clone node
-		taskTemplate.classList.remove('hide')
+		taskTmpl.classList.remove('hide')
 	}, 100)
-
-	// Increase current id
-	increasecurrentNewID()
 
 	// Reset current task
 	resetCurrentTask()
@@ -636,9 +784,7 @@ function taskCreateUI() {
 function taskEdit() {
 
 	// Get the task we're editing
-	const currentTaskElem = document.getElementById(id)
-
-	console.log(currentTaskElem)
+	const currentTaskElem = document.getElementById(currentTask.id)
 
 	// Add class to clone node
 	currentTaskElem.classList.add('highlight', 'edit', 'fast')
@@ -646,9 +792,9 @@ function taskEdit() {
 	// Set time out for 0.125 seconds
 	setTimeout(() => {
 		// Set the form values to the current values
-		currentTaskElem.querySelector('.task').innerText = task
-		currentTaskElem.querySelector('.project').innerText = project
-		currentTaskElem.querySelector('.client').innerText = client
+		currentTaskElem.querySelector('.task').innerText = currentTask.task
+		currentTaskElem.querySelector('.project').innerText = currentTask.project
+		currentTaskElem.querySelector('.client').innerText = currentTask.client
 
 		// Set time out for 0.1 seconds
 		setTimeout(() => {
@@ -660,8 +806,6 @@ function taskEdit() {
 
 function updateCountdown() {
 
-	console.log(`time: ${activeTaskTime}`)
-
 	const currentTime = formatTimeForHTML(activeTaskTime)
 
 	// Set the HTML Element value
@@ -669,6 +813,49 @@ function updateCountdown() {
 
 	// Add 1 to time
 	activeTaskTime++
+}
+
+function updateTaskList() {
+
+	// Clear current task list and archived list
+	document.querySelectorAll('.list-item').forEach(item => {
+		item.remove()
+	})
+
+	// Set taskList
+	const taskList = localCache.tasks
+
+	// Loop through the task list
+	for (const task in taskList) {
+		if (Object.hasOwnProperty.call(taskList, task)) {
+
+			currentTask = {
+				id: taskList[task].id,
+				task: taskList[task].task,
+				project: taskList[task].project,
+				client: taskList[task].client,
+				time: taskList[task].time,
+				startDate: taskList[task].startDate,
+				archived: taskList[task].archived
+			}
+
+			// Check to see if task is archived or not
+			if (currentTask.archived === false) {
+
+				// Create the task
+				taskCreateUI()
+
+			} else {
+
+				// Archive the task
+				taskCreateUI()
+
+			}
+
+			// Reset current task
+			resetCurrentTask()
+		}
+	}
 }
 
 //--------------------------//
@@ -715,61 +902,27 @@ function parseJSONtoObj(jsonString) {
 //	contextBridge/ipcRenderer Methods	//
 //--------------------------------------//
 
-// Take returned task list and display it in UI
-window.api.onTaskReturn(
-	(json) => {
+// Set local cache using returned values
+window.api.onJSONReturn( (json) => {
 
 		// Set task list variable
-		taskList = JSON.parse(json).tasks
+		localCache.tasks = JSON.parse(json).tasks
+		localCache.clients = JSON.parse(json).clients
+		localCache.currentNewID = JSON.parse(json).currentNewID
+		localCache.settings = JSON.parse(json).settings
 
-		for (const task in taskList) {
-			if (Object.hasOwnProperty.call(taskList, task)) {
+		// Update the UI
+		updateTaskList()
 
-				currentTask = {
-					id: task,
-					task: taskList[task].task,
-					project: taskList[task].project,
-					client: taskList[task].client,
-					time: taskList[task].time,
-					startDate: taskList[task].startDate,
-					archived: taskList[task].archived
-				}
-
-				console.log(currentTask)
-
-				// Check to see if task is archived or not
-				if (currentTask.archived === false) {
-
-					// Create the task
-					taskCreateUI(currentTask)
-
-					console.log(`Task: ${currentTask.task}\n`)
-
-				} else {
-
-					// Archive the task
-					taskCreateUI(currentTask)
-					// Archive current node
-					archiveNode(task)
-
-				}
-
-				// Reset current task
-				resetCurrentTask()
-			}
-		}
-
-		// console.log(JSON.parse(json).clientList)
 	}
-
-);
+)
 
 //--------------------------//
 //	Run on Launch			//
 //--------------------------//
 
-// Get task list on load
-ipcRenderer.send('task:get', 'tasks')
+// Get db dump on load
+ipcRenderer.send('db:get', '')
 
 //--------------------------//
 //	Testing					//
@@ -778,9 +931,9 @@ ipcRenderer.send('task:get', 'tasks')
 // Get tasks from JSON file via Electron app
 // TODO ipcRenderer.send('task:update', task)
 // TODO ipcRenderer.send('task:delete', task)
-// TODO ipcRenderer.send('clientList:get')
-// TODO ipcRenderer.send('clientList:update', client)
-// TODO ipcRenderer.send('clientList:delete', client)
+// TODO ipcRenderer.send('client:get')
+// TODO ipcRenderer.send('client:update', client)
+// TODO ipcRenderer.send('client:delete', client)
 // TODO ipcRenderer.send('currentNewID:get')
 // TODO ipcRenderer.send('settings:get')
 // TODO ipcRenderer.send('settings:update', setting)

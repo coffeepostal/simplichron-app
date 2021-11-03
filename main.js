@@ -56,25 +56,25 @@ const fs = require('fs')
 
 
 // Add Tasks
-ipcMain.on('task:add', (event, dataset) => {
+ipcMain.on('db:send', (event, dataset) => {
 
-  // Read the JSON file
-  fs.readFile('./data/data.json', 'utf8', (err, jsonString) => {
+  // Run in a Try/Catch block
+  try {
 
-    // Throw error to console if there is one
-    if (err) {
-      console.log("File read failed:", err)
-      return
-    }
+    // Write the JSON file
+    fs.writeFileSync('./data/data.json', JSON.stringify(dataset))
 
-    // Send returned JSON data to mainWindow
-    mainWindow.webContents.send('tasks.return', jsonString)
+    // Confirm save
+    console.log("File has been saved")
 
-  })
+  } catch (err) {
+    console.error(err)
+  }
+
 })
 
-// Get Tasks
-ipcMain.on('task:get', (event, dataset) => {
+// Get Database
+ipcMain.on('db:get', (event, dataset) => {
 
   // Read the JSON file
   fs.readFile('./data/data.json', 'utf8', (err, jsonString) => {
@@ -86,7 +86,7 @@ ipcMain.on('task:get', (event, dataset) => {
     }
 
     // Send returned JSON data to mainWindow
-    mainWindow.webContents.send('tasks.return', jsonString)
+    mainWindow.webContents.send('db:return', jsonString)
 
   })
 })

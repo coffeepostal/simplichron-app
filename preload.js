@@ -6,7 +6,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', ipcRenderer)
 
 // Create API connections between Electron and renderer.js
 contextBridge.exposeInMainWorld('api', {
-	onTaskReturn: (fn) => {
-		ipcRenderer.on('tasks.return', (event, ...args) => fn(...args))
+	onJSONReturn: (fn) => {
+		ipcRenderer.on('db:return', (event, ...args) => fn(...args))
 	},
 })
