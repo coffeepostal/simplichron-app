@@ -1,6 +1,6 @@
 {
 	"name": "SimpliChron",
-	"version": "1.0.0",
+	"version": "0.0.2",
 	"description": "A simple time tracker for busy people.",
 	"main": "main.js",
 	"scripts": {
@@ -34,7 +34,7 @@
 	"config": {
 		"forge": {
 			"packagerConfig": {
-				"icon": "images/logo-lg-256.icns"
+				"icon": "images/icon.icns"
 			},
 			"makers": [
 				{

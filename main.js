@@ -7,6 +7,20 @@ const storage = require('electron-json-storage')
 // Define mainWindow
 let mainWindow
 
+// Define app icons
+let icon
+switch (process.platform) {
+	case 'win32':
+		icon = path.resolve(__dirname, 'images', 'icon.ico')
+		break
+	case 'darwin':
+		icon = path.resolve(__dirname, 'images', 'icon.icns')
+		break
+	case 'linux':
+		icon = path.resolve(__dirname, 'images', 'icon.png')
+		break
+}
+
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
@@ -15,7 +29,7 @@ function createWindow() {
 		webPreferences: {
 			preload: path.join(app.getAppPath(), 'preload.js'),
 		},
-		icon: path.join(__dirname, 'images/logo.png'),
+		icon,
 	})
 
 	// and load the index.html of the app.
@@ -65,15 +79,13 @@ const jsonFile = `${userDataPath}/data/data.json`
 
 // Add Tasks
 ipcMain.on('db:send', (event, dataset) => {
-
 	storage.set(jsonFile, dataset, function (error) {
-		if (error) throw error;
-	});
+		if (error) throw error
+	})
 })
 
 // Get Database
 ipcMain.on('db:get', (event, dataset) => {
-
 	// Read the JSON file
 	storage.get(jsonFile, function (error, data) {
 		if (error) throw error
