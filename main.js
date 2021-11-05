@@ -15,7 +15,7 @@ function createWindow() {
 		webPreferences: {
 			preload: path.join(app.getAppPath(), 'preload.js'),
 		},
-		icon: './',
+		icon: path.join(__dirname, 'images/logo.png'),
 	})
 
 	// and load the index.html of the app.
@@ -23,6 +23,9 @@ function createWindow() {
 
 	// Open the DevTools.
 	// mainWindow.webContents.openDevTools()
+
+	// Add tray icon
+	const appIcon = new Tray('./images/logo.png')
 }
 
 // This method will be called when Electron has finished
