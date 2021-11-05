@@ -1,92 +1,81 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain} = require('electron')
+const { app, BrowserWindow, ipcMain, Tray } = require('electron')
+const fs = require('fs')
 const path = require('path')
+const storage = require('electron-json-storage')
 
 // Define mainWindow
 let mainWindow
 
-function createWindow () {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 1730,
-    height: 720,
-    webPreferences: {
-      preload: path.join(app.getAppPath(), 'preload.js')
-    }
-  })
+function createWindow() {
+	// Create the browser window.
+	mainWindow = new BrowserWindow({
+		width: 1280, // 1730 for DEV tools
+		height: 720,
+		webPreferences: {
+			preload: path.join(app.getAppPath(), 'preload.js'),
+		},
+		icon: './',
+	})
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+	// and load the index.html of the app.
+	mainWindow.loadFile('index.html')
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+	// Open the DevTools.
+	// mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  createWindow()
+	createWindow()
 
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
+	app.on('activate', function () {
+		// On macOS it's common to re-create a window in the app when the
+		// dock icon is clicked and there are no other windows open.
+		if (BrowserWindow.getAllWindows().length === 0) createWindow()
+	})
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
+	if (process.platform !== 'darwin') app.quit()
 })
 
 // In this file you can include the rest of your app's specific main process code. You can also put them in separate files and require them here.
 
 //--------------------------//
-// Required Packages	    	//
+// JSON Storage	           	//
 //--------------------------//
-
-const fs = require('fs')
+let jsonStorage
 
 //--------------------------//
 // ipc Requests	           	//
 //--------------------------//
 
+// Define file name
+const userDataPath = app.getPath('userData')
+const jsonFile = `${userDataPath}/data/data.json`
 
 // Add Tasks
 ipcMain.on('db:send', (event, dataset) => {
 
-  // Run in a Try/Catch block
-  try {
-
-    // Write the JSON file
-    fs.writeFileSync('./data/data.json', JSON.stringify(dataset))
-
-    // Confirm save
-    console.log("File has been saved")
-
-  } catch (err) {
-    console.error(err)
-  }
-
+	storage.set(jsonFile, dataset, function (error) {
+		if (error) throw error;
+	});
 })
 
 // Get Database
 ipcMain.on('db:get', (event, dataset) => {
 
-  // Read the JSON file
-  fs.readFile('./data/data.json', 'utf8', (err, jsonString) => {
+	// Read the JSON file
+	storage.get(jsonFile, function (error, data) {
+		if (error) throw error
 
-    // Throw error to console if there is one
-    if (err) {
-      console.log("File read failed:", err)
-      return
-    }
-
-    // Send returned JSON data to mainWindow
-    mainWindow.webContents.send('db:return', jsonString)
-
-  })
+		// Send returned JSON data to mainWindow
+		mainWindow.webContents.send('db:return', data)
+	})
 })

@@ -317,6 +317,9 @@ document.addEventListener('click', function (event) {
 
 function archiveNode(id) {
 
+	// Set unarchived element variable
+	let unarchivedElement = document.getElementById(id)
+
 	// Change the task archive status to true
 	localCache.tasks[id].archived = true
 
@@ -340,8 +343,9 @@ function archiveNode(id) {
 	taskTmpl.querySelector('.start-date').innerText = startDate
 	taskTmpl.dataset.archived = 'true'
 
-	// Add hide class from cloned node
+	// Add hide class to cloned node and unarchived node
 	taskTmpl.classList.add('hide')
+	unarchivedElement.classList.add('hide')
 
 	// Append clone to project list
 	elemArchivedList.appendChild(taskTmpl)
@@ -352,10 +356,16 @@ function archiveNode(id) {
 		// Remove hide class from cloned node
 		taskTmpl.classList.remove('hide')
 
+		// Remove unarchived node from DOM
+		unarchivedElement.remove()
+
 	}, 250)
 }
 
 function reinstateNode(id) {
+
+	// Set archived element variable
+	let archivedElement = document.getElementById(id)
 
 	// Change the task archive status to true
 	localCache.tasks[id].archived = false
@@ -380,8 +390,9 @@ function reinstateNode(id) {
 	taskTmpl.querySelector('.start-date').innerText = startDate
 	taskTmpl.dataset.archived = 'true'
 
-	// Add hide class from cloned node
+	// Add hide class to cloned node and archived node
 	taskTmpl.classList.add('hide')
+	archivedElement.classList.add('hide')
 
 	// Append clone to project list
 	elemTaskList.appendChild(taskTmpl)
@@ -391,6 +402,9 @@ function reinstateNode(id) {
 
 		// Remove hide class from cloned node
 		taskTmpl.classList.remove('hide')
+
+		// Remove archived node from DOM
+		archivedElement.remove()
 
 	}, 250)
 }
@@ -903,19 +917,22 @@ function parseJSONtoObj(jsonString) {
 //--------------------------------------//
 
 // Set local cache using returned values
-window.api.onJSONReturn( (json) => {
+window.api.onJSONReturn((json) => {
+
+	// If no JSON file exists don't set the local cache to null
+	if (Object.keys(json).length != 0) {
 
 		// Set task list variable
-		localCache.tasks = JSON.parse(json).tasks
-		localCache.clients = JSON.parse(json).clients
-		localCache.currentNewID = JSON.parse(json).currentNewID
-		localCache.settings = JSON.parse(json).settings
+		localCache.tasks = json.tasks
+		localCache.clients = json.clients
+		localCache.currentNewID = json.currentNewID
+		localCache.settings = json.settings
 
 		// Update the UI
 		updateTaskList()
-
 	}
-)
+
+})
 
 //--------------------------//
 //	Run on Launch			//
@@ -924,16 +941,7 @@ window.api.onJSONReturn( (json) => {
 // Get db dump on load
 ipcRenderer.send('db:get', '')
 
+
 //--------------------------//
 //	Testing					//
 //--------------------------//
-
-// Get tasks from JSON file via Electron app
-// TODO ipcRenderer.send('task:update', task)
-// TODO ipcRenderer.send('task:delete', task)
-// TODO ipcRenderer.send('client:get')
-// TODO ipcRenderer.send('client:update', client)
-// TODO ipcRenderer.send('client:delete', client)
-// TODO ipcRenderer.send('currentNewID:get')
-// TODO ipcRenderer.send('settings:get')
-// TODO ipcRenderer.send('settings:update', setting)
