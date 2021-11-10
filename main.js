@@ -24,7 +24,7 @@ switch (process.platform) {
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1730, // 1730 for DEV tools / 1280 for no DEV tools
+		width: 1280, // 1730 for DEV tools / 1280 for no DEV tools
 		height: 720,
 		webPreferences: {
 			preload: path.join(app.getAppPath(), 'preload.js'),
@@ -36,7 +36,7 @@ function createWindow() {
 	mainWindow.loadFile('index.html')
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools()
+	// mainWindow.webContents.openDevTools()
 
 	// Add tray icon
 	const appIcon = new Tray('./images/logo.png')
