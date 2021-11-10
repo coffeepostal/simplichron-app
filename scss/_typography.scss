@@ -140,3 +140,15 @@ h6,
 		}
 	}
 }
+.quick-add-remove-time {
+	ul {
+		li {
+			&.title {
+				font-weight: 700;
+				text-transform: uppercase;
+			}
+			&.quickModifyTime {
+			}
+		}
+	}
+}
