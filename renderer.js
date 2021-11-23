@@ -31,6 +31,7 @@ const tmplModalSettings = document.getElementById('modal-settings')
 const tmplModal = document.getElementById('modal')
 const tmplListItem = document.getElementById('list-item')
 const tmplArchivedListItem = document.getElementById('archived-list-item')
+const tmplMessage = document.getElementById('message')
 
 //--------------------------//
 //	Variables				//
@@ -39,6 +40,8 @@ const tmplArchivedListItem = document.getElementById('archived-list-item')
 let interval = null
 let modalState = null
 let activeTask = null
+let activeTaskStartDate = null
+let activeTaskEndDate = null
 let activeTaskTime = 0
 let currentTask = {
 	id: null,
@@ -47,6 +50,7 @@ let currentTask = {
 	client: '',
 	time: 0,
 	startDate: '',
+	timerLogs: [],
 	archived: false,
 }
 let localCache = {
@@ -67,66 +71,29 @@ document.addEventListener(
 
 		// Play Event
 		if (event.target.matches('#play')) {
+
 			// Check to see if another interval is running
 			if (activeTask != null) {
-				// If one is, kill it
+
+				// If one is, stop the UI timer
 				intervalStop(activeTask)
+
+
+				// If one is, kill it
+				eventStop(activeTask)
+
 			}
 
-			// Set the current task
-			activeTask = event.target.parentElement.parentElement
-
-			// Get the current task's current time
-			let timeArray = activeTask
-				.querySelector('.total-time')
-				.innerText.split(':')
-
-			// Set active task time
-			activeTaskTime = localCache.tasks[activeTask.id].time
-			// activeTaskTime = timeArray[0] * 60 * 60 + timeArray[1] * 60 + timeArray[2] * 1
-
-			// Run function every second (1000 milliseconds)
-			interval = setInterval(updateCountdown, 1000)
-
-			// Highlight active timer
-			const listItems = document.querySelectorAll('.list-item')
-			const listItemsArray = [...listItems]
-
-			// Remove the highlight class from any other item
-			listItemsArray.forEach((e) => {
-				// Remove highlight class
-				e.classList.remove('highlight', 'active')
-
-				// Change class and id to play
-				event.target.classList = 'ri-play ri-xl'
-				event.target.id = 'play'
-			})
-
-			// Change class and id to stop
-			event.target.classList = 'ri-stop-fill ri-xl'
-			event.target.id = 'stop'
-
-			// Add the highlight class to this item
-			activeTask.classList.add('highlight', 'active')
+			// Run the play function
+			eventPlay(event)
 
 			return
 		}
 
 		// Stop Event
 		if (event.target.matches('#stop')) {
-			// Save active task time to current task
-			currentTask = localCache.tasks[activeTask.id]
 
-			currentTask.time = activeTaskTime
-
-			// Save current task to local cache
-			localCache.tasks[activeTask.id] = currentTask
-
-			// Save local cache to local storage
-			ipcRenderer.send('db:send', localCache)
-
-			// Stop the interval
-			intervalStop(activeTask)
+			eventStop(activeTask)
 
 			return
 		}
@@ -305,9 +272,13 @@ document.addEventListener(
 					project: form.querySelector('[name=project]').value,
 					client: form.querySelector('[name=client]').value,
 					time: 0,
+					timerLogs: [],
 					startDate: fullDate,
 					archived: false,
 				}
+
+				// Post to message system
+				messageSystem('save', 5, `'${currentTask.task}' has been created.`)
 
 			} else if (modalState === 'edit') {
 
@@ -315,6 +286,9 @@ document.addEventListener(
 				currentTask.task = form.querySelector('[name=task]').value
 				currentTask.project = form.querySelector('[name=project]').value
 				currentTask.client = form.querySelector('[name=client]').value
+
+				// Post to message system
+				messageSystem('edit', 5, `'${currentTask.task}' has been edited.`)
 
 			}
 
@@ -395,12 +369,166 @@ document.addEventListener(
 
 			return
 		}
+
+		// TESTING Event
+		if (event.target.matches('#test')) {
+
+			messageSystem('error', 30, 'This is a test error message')
+
+			return
+		}
+
+		// TESTING Event - Close
+		if (event.target.matches('#message-close')) {
+
+			// Add class to clone node
+			event.target.parentElement.parentElement.classList.add('hide')
+
+			// Take 0.1 seconds and remove hide
+			setTimeout(() => {
+
+				// Remove clone from DOM tree
+				event.target.parentElement.parentElement.remove()
+
+			}, 100)
+
+			return
+		}
 	},
 	false
 )
 
 //--------------------------//
-//	Functions				//
+//	Event Functions			//
+//--------------------------//
+
+function eventPlay(event) {
+
+	// Set the active task
+	activeTask = event.target.parentElement.parentElement
+
+	// Run UI Timer function every second (1000 milliseconds)
+	interval = setInterval(updateUITimer, 1000)
+
+	// Set the active task's start date
+	activeTaskStartDate = new Date()
+
+	// Highlight active timer
+	const listItems = document.querySelectorAll('.list-item')
+	const listItemsArray = [...listItems]
+
+	// Remove the highlight class from any other item
+	listItemsArray.forEach((e) => {
+		// Remove highlight class
+		e.classList.remove('highlight', 'active')
+
+		// Change class and id to play
+		event.target.classList = 'ri-play ri-xl'
+		event.target.id = 'play'
+	})
+
+	// Change class and id to stop
+	event.target.classList = 'ri-stop-fill ri-xl'
+	event.target.id = 'stop'
+
+	// Add the highlight class to this item
+	activeTask.classList.add('highlight', 'active')
+
+	return
+}
+
+function eventStop(activeTask) {
+
+	// Stop the interval
+	intervalStop(activeTask)
+
+	// Set the active task's end date
+	activeTaskEndDate = new Date()
+
+	// Subtract the start date from the end date
+	const timeDiff = Math.floor((activeTaskEndDate - activeTaskStartDate) /1000)
+
+	// Save active task time to current task
+	currentTask = localCache.tasks[activeTask.id]
+
+	// Add the time difference to the current task's time
+	currentTask.time = currentTask.time + timeDiff
+
+	// Add log to current task
+	currentTask.timerLogs.push({
+		startDate: activeTaskStartDate,
+		endDate: activeTaskEndDate,
+		time: timeDiff
+	})
+
+	// Save current task to local cache
+	localCache.tasks[activeTask.id] = currentTask
+
+	// Save local cache to local storage
+	ipcRenderer.send('db:send', localCache)
+
+	// Update the UI
+	taskEditUI()
+
+	// Reset the active task
+	activeTask = null
+
+	return
+}
+
+
+//--------------------------//
+//	Messaging Functions		//
+//--------------------------//
+
+function messageSystem(type, timeoutLength, text) {
+
+	// Get template and clone it
+	const cloneTmpl = tmplMessage.content.cloneNode(true)
+
+	// Set clone as variable
+	const clone = cloneTmpl.querySelector('.message-container')
+
+	// Set clone message type
+	clone.classList.add(type)
+
+	// Change the form title
+	clone.querySelector('.message-content p').innerHTML = text
+
+	// Append the clone to the body
+	document.body.prepend(cloneTmpl)
+
+	// Take 0.1 seconds and remove hide
+	setTimeout(() => {
+		// Remove class to clone node
+		clone.classList.remove('hide')
+	}, 100)
+
+	// Set actual timeout length
+	const timeout = timeoutLength * 1000
+
+	// Set time out for 5 seconds, then destroy the clone
+	setTimeout(() => {
+
+		// Add class to clone node
+		clone.classList.add('hide')
+
+		// Take 0.1 seconds and remove hide
+		setTimeout(() => {
+
+			// Remove clone from DOM tree
+			clone.remove()
+
+		}, 100)
+
+	}, timeout)
+
+	return
+}
+
+
+//--------------------------//
+//	Task Functions			//
 //--------------------------//
 
 function archiveNode(id) {
@@ -438,6 +566,9 @@ function archiveNode(id) {
 
 	// Append clone to project list
 	elemArchivedList.appendChild(taskTmpl)
+
+	// Post to message system
+	messageSystem('archive', 5, `'${localCache.tasks[id].task}' has been archived.`)
 
 	// Set time out for 0.125 seconds
 	setTimeout(() => {
@@ -485,6 +616,9 @@ function reinstateNode(id) {
 	// Append clone to project list
 	elemTaskList.appendChild(taskTmpl)
 
+	// Post to message system
+	messageSystem('save', 5, `'${localCache.tasks[id].task}' has been reinstated.`)
+
 	// Set time out for 0.125 seconds
 	setTimeout(() => {
 		// Remove hide class from cloned node
@@ -507,11 +641,15 @@ function deleteTask(target) {
 		// Removed from DOM tree
 		taskElem.remove()
 
+		// Post to message system
+		messageSystem('delete', 5, `'${localCache.tasks[target].task}' has been deleted.`)
+
 		// Delete the task from the local cache
 		delete localCache.tasks[target]
 
 		// Send local cache to db
 		ipcRenderer.send('db:send', localCache)
+
 	}, 600)
 }
 
@@ -527,13 +665,16 @@ function duplicateNode(target) {
 		project: localCache.tasks[target.id].project,
 		client: localCache.tasks[target.id].client,
 		time: localCache.tasks[target.id].time,
+		timerLogs: localCache.tasks[target.id].timerLogs,
 		startDate: localCache.tasks[target.id].startDate,
 		archived: false,
 	}
 
-	console.log(currentTask)
-
+	// Save local cache to db
 	saveTaskToDB()
+
+	// Post to message system
+	messageSystem('save', 5, `'${currentTask.task}' has been duplicated.`)
 
 	// Set time out for 0.125 seconds
 	setTimeout(() => {
@@ -596,7 +737,7 @@ function increaseCurrentNewID() {
 }
 
 function intervalStop(target) {
-	// Reset current task
+	// Reset active task
 	activeTask = null
 
 	// Change class and id
@@ -776,6 +917,7 @@ function resetCurrentTask() {
 		project: '',
 		client: '',
 		time: 0,
+		timerLogs: [],
 		startDate: '',
 		archived: false,
 	}
@@ -785,12 +927,8 @@ function resetCurrentTask() {
 
 function saveTaskToDB() {
 
-	console.log(currentTask)
-
 	// Add current task to cached tasks
 	localCache.tasks[currentTask.id] = currentTask
-
-	console.log(localCache.tasks[currentTask.id])
 
 	// Run the correct function
 	if (modalState === 'create') {
@@ -804,7 +942,8 @@ function saveTaskToDB() {
 	} else if (modalState === 'addRemoveTime' || modalState === 'edit') {
 		taskEditUI()
 	} else {
-		console.error(`HOW THE ACTUAL FUCK DID YOU NOT SET THE MODAL STATE?`)
+		// Throw error
+		messageSystem('error', 30, `Modal State not set — <a href="mailto:dev@farns.co?subject=SimpliChron Error&body=Modal State not set when trying to saveTaskToDB.\n\nmodalState: ${modalState}\ncurrentTask: ${currentTask}">email the developer.</a>`)
 	}
 
 	// Create client array
@@ -879,6 +1018,8 @@ function taskEditUI() {
 	// Get the task we're editing
 	const currentTaskElem = document.getElementById(currentTask.id)
 
+	console.log(currentTaskElem)
+
 	// Add class to clone node
 	currentTaskElem.classList.add('highlight', 'edit', 'fast')
 
@@ -892,6 +1033,7 @@ function taskEditUI() {
 		currentTaskElem.querySelector('.project').innerText =
 			currentTask.project
 		currentTaskElem.querySelector('.client').innerText = currentTask.client
+		currentTaskElem.querySelector('.current-timer').innerText = `00:00:00`
 		currentTaskElem.querySelector(
 			'.total-time'
 		).innerText = `${formattedTime[0]}:${formattedTime[1]}:${formattedTime[2]}`
@@ -937,6 +1079,7 @@ function updateTaskList() {
 				project: taskList[task].project,
 				client: taskList[task].client,
 				time: taskList[task].time,
+				timerLogs: taskList[task].timerLogs,
 				startDate: taskList[task].startDate,
 				archived: taskList[task].archived,
 			}
@@ -954,6 +1097,23 @@ function updateTaskList() {
 			resetCurrentTask()
 		}
 	}
+}
+
+function updateUITimer() {
+
+	// Set the active task's end date
+	const tempEndDate = new Date()
+
+	// Subtract the start date from the end date
+	const timeDiff = Math.floor((tempEndDate - activeTaskStartDate) /1000)
+
+	const formattedTime = formatTimeForHTML(timeDiff)
+
+	// Set the HTML Element value
+	activeTask.querySelector(
+		'.current-timer'
+	).innerHTML = `${formattedTime[0]}:${formattedTime[1]}:${formattedTime[2]}`
+
 }
 
 //--------------------------//
@@ -998,16 +1158,20 @@ function parseJSONtoObj(jsonString) {
 
 // Set local cache using returned values
 window.api.onJSONReturn((json) => {
-	// If no JSON file exists don't set the local cache to null
-	if (Object.keys(json).length != 0) {
-		// Set task list variable
-		localCache.tasks = json.tasks
-		localCache.clients = json.clients
-		localCache.currentNewID = json.currentNewID
-		localCache.settings = json.settings
+	try {
+		// If no JSON file exists don't set the local cache to null
+		if (Object.keys(json).length != 0) {
+			// Set task list variable
+			localCache.tasks = json.tasks
+			localCache.clients = json.clients
+			localCache.currentNewID = json.currentNewID
+			localCache.settings = json.settings
 
-		// Update the UI
-		updateTaskList()
+			// Update the UI
+			updateTaskList()
+		}
+	} catch (error) {
+		messageSystem('error', 30 `Error returning data: ${error} – <a href="mailto:dev@farns.co?subject=SimpliChron Error&body=Returned error while returning data from JSON.\n\n Error: ${error}">email the developer.</a>`)
 	}
 })
 

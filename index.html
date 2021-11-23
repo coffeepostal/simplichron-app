@@ -22,6 +22,7 @@
 				<div class="task">Task</div>
 				<div class="project">Project</div>
 				<div class="client">Client</div>
+				<div class="current-timer">Current Timer</div>
 				<div class="total-time">Total Time</div>
 				<div class="start-date">Start Date</div>
 				<div class="item-controls">Operations</div>
@@ -46,6 +47,7 @@
 
 		<section id="project-list-controls" class="list-controls">
 			<i id="add" class="ri-add-line control"></i>
+			<!-- <i id="test" class="ri-flask-fill control"></i> -->
 		</sec>
 
 		<template id="modal">
@@ -76,17 +78,17 @@
 					<div class="quick-add-remove-time">
 						<ul id="quick-add-time">
 							<li class="title">Add Time</li>
-							<li class="quickModifyTime" data-modify-time="5"><i class="ri-add-line"></i> 5 minutes</li>
-							<li class="quickModifyTime" data-modify-time="15"><i class="ri-add-line"></i> 15 minutes</li>
-							<li class="quickModifyTime" data-modify-time="30"><i class="ri-add-line"></i> 30 minutes</li>
-							<li class="quickModifyTime" data-modify-time="60"><i class="ri-add-line"></i> 1 hour</li>
+							<li class="quickModifyTime" data-modify-time="5"><button><i class="ri-add-line"></i> 5 min.</button></li>
+							<li class="quickModifyTime" data-modify-time="15"><button><i class="ri-add-line"></i> 15 min.</button></li>
+							<li class="quickModifyTime" data-modify-time="30"><button><i class="ri-add-line"></i> 30 min.</button></li>
+							<li class="quickModifyTime" data-modify-time="60"><button><i class="ri-add-line"></i> 1 hour</button></li>
 						</ul>
 						<ul id="quick-remove-time">
 							<li class="title">Remove Time</li>
-							<li class="quickModifyTime" data-modify-time="-5"><i class="ri-subtract-line"></i> 5 minutes</li>
-							<li class="quickModifyTime" data-modify-time="-15"><i class="ri-subtract-line"></i> 15 minutes</li>
-							<li class="quickModifyTime" data-modify-time="-30"><i class="ri-subtract-line"></i> 30 minutes</li>
-							<li class="quickModifyTime" data-modify-time="-60"><i class="ri-subtract-line"></i> 1 hour</li>
+							<li class="quickModifyTime" data-modify-time="-5"><button><i class="ri-subtract-line"></i> 5 min.</button></li>
+							<li class="quickModifyTime" data-modify-time="-15"><button><i class="ri-subtract-line"></i> 15 min.</button></li>
+							<li class="quickModifyTime" data-modify-time="-30"><button><i class="ri-subtract-line"></i> 30 min.</button></li>
+							<li class="quickModifyTime" data-modify-time="-60"><button><i class="ri-subtract-line"></i> 1 hour</button></li>
 						</ul>
 					</div>
 
@@ -178,6 +180,7 @@
 				</div>
 				<div class="client">
 				</div>
+				<div class="current-timer">00:00:00</div>
 				<div class="total-time">00:00:00</div>
 				<div class="start-date">MM-DD-YYYY</div>
 				<div class="item-controls">
@@ -200,6 +203,17 @@
 					></i>
 				</div>
 			</article>
+		</template>
+
+		<template id="message">
+			<section id="message" class="message-container hide">
+				<div class="message-content">
+					<p></p>
+				</div>
+				<div class="message-close">
+					<i id="message-close" class="ri-close-line ri-2x"></i>
+				</div>
+			</section>
 		</template>
 
 		<!-- You can also require other files to run in this process -->

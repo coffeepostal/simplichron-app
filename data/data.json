@@ -2,55 +2,59 @@
 	"tasks": {
 		"0": {
 			"id": 0,
-			"task": "Layout Updates",
-			"project": "Magazine Ad",
-			"client": "Industrious Industries",
-			"time": 9252,
-			"startDate": "2021-10-22T23:35:11.179Z",
+			"task": "Task Name",
+			"project": "Project Name",
+			"client": "New Client",
+			"time": 2127,
+			"timerLogs": [
+				{
+					"startDate": "2021-11-22T00:00:00.000Z",
+					"endDate": "2021-11-22T00:00:04.000Z",
+					"time": 4
+				},
+				{
+					"startDate": "2021-11-22T19:24:31.520Z",
+					"endDate": "2021-11-22T19:24:36.944Z",
+					"time": 5
+				}
+			],
+			"startDate": "11-09-2021",
 			"archived": false
 		},
 		"1": {
 			"id": 1,
-			"task": "Text Updates",
-			"project": "Website",
-			"client": "ACME Creative",
-			"time": 478,
-			"startDate": "2021-10-20T21:12:21.179Z",
-			"archived": false
+			"task": "Archived Task",
+			"project": "Archived Project",
+			"client": "Archived Client",
+			"time": 5,
+			"timerLogs": [
+				{
+					"startDate": "2021-11-22T00:00:00.000Z",
+					"endDate": "2021-11-22T00:00:04.000Z",
+					"time": 4
+				}
+			],
+			"startDate": "2021-11-10T01:01:48.132Z",
+			"archived": true
 		},
 		"2": {
 			"id": 2,
-			"task": "Sign Carving",
-			"project": "New Signage",
-			"client": "Island Optometry",
-			"time": 123,
-			"startDate": "2021-09-20T13:42:31.179Z",
-			"archived": false
-		},
-		"3": {
-			"id": 3,
-			"task": "Archived Task",
-			"project": "Archived Project",
-			"client": "Island Optometry",
-			"time": 1285,
-			"startDate": "2021-04-30T15:12:00.000Z",
-			"archived": true
-		},
-		"6": {
-			"id": 6,
 			"task": "New Task",
-			"project": "New Project ",
-			"client": "New Client",
-			"time": 6,
-			"startDate": "2021-11-03T19:19:33.387Z",
+			"project": "New Project",
+			"client": "Old Client",
+			"time": 0,
+			"timerLogs": [
+				{
+					"startDate": "2021-11-22T00:00:00.000Z",
+					"endDate": "2021-11-22T00:00:04.000Z",
+					"time": 4
+				}
+			],
+			"startDate": "2021-11-10T06:16:44.416Z",
 			"archived": false
 		}
 	},
-	"clients": {
-		"Industrious Industries": { "projects": { "0": "Magazine Ad" } },
-		"ACME Creative": { "projects": { "0": "Website" } },
-		"Island Optometry": { "projects": { "0": "New Signage" } }
-	},
-	"currentNewID": 7,
-	"settings": { "styleMode": "light" }
+	"clients": ["New Client", "Archived Client", "Old Client", "Older Client"],
+	"currentNewID": 6,
+	"settings": {}
 }
