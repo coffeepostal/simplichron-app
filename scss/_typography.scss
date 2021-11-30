@@ -25,15 +25,15 @@
 
 body {
 	font-family: 'Space Mono', monospace;
-	color: hsl(180, 10, 20);
+	color: $color-font-black;
 }
 
 a {
-	color: hsl(180, 10, 30);
+	color: $color-primary;
 	transition: color 0.25s linear;
 	text-decoration: none;
 	&:hover {
-		color: hsl(180, 10, 10);
+		color: scale-color($color-primary, $lightness: 10%);
 		text-decoration: underline;
 	}
 
@@ -45,11 +45,11 @@ a {
 }
 
 .archived a {
-	color: hsl(180, 10, 90);
+	color: scale-color($color-black, $alpha: -25%);
 	transition: color 0.25s linear;
 	text-decoration: none;
 	&:hover {
-		color: hsl(180, 10, 100);
+		color: $color-black;
 		text-decoration: underline;
 	}
 
@@ -116,7 +116,21 @@ h6,
 	}
 }
 
+.message-container {
+	color: scale-color($color-white, $alpha: -10%);
+}
+
 .list-container {
+	&.archived {
+		.list-item,
+		.list-header {
+			color: $color-primary;
+		}
+	}
+
+	header {
+		color: $color-white;
+	}
 	.list-header {
 		font-weight: 700;
 		text-transform: uppercase;
@@ -128,10 +142,18 @@ h6,
 		.reinstate {
 			i {
 				cursor: pointer;
+				color: $color-accent;
+
+				transition: color 0.125s linear;
+
+				&:hover {
+					color: scale-color($color-accent, $lightness: -15%);
+				}
 			}
 		}
 	}
 }
+
 .list-controls {
 	i {
 		cursor: pointer;

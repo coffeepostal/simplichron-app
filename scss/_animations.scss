@@ -1,6 +1,6 @@
 section,
 article {
-	background-color: hsl(180, 0, 100);
+	background-color: $color-white;
 	opacity: 1;
 
 	transition: background-color 0.25s, opacity 0.25s;
@@ -20,15 +20,15 @@ article {
 
 .highlight {
 	&.active {
-		background-color: hsl(180, 10, 90);
+		background-color: $color-background-active;
 	}
 	&.delete {
-		background-color: hsl(0, 50%, 85%);
+		background-color: $color-background-delete;
 	}
 	&.duplicate {
-		background-color: hsl(190, 90%, 85%);
+		background-color: $color-background-duplicate;
 	}
 	&.edit {
-		background-color: hsl(60, 65%, 85%);
+		background-color: $color-background-edit;
 	}
 }

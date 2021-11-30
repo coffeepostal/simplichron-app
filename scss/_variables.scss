@@ -1,0 +1,15 @@
+$color-primary: hsl(208, 54%, 42%);
+$color-secondary: hsl(188, 40%, 75%);
+$color-accent: hsl(350, 96%, 49%);
+$color-black: hsl(12, 14%, 14%);
+$color-white: hsl(44, 35%, 92%);
+$color-font-black: $color-black;
+$color-archive: $color-black;
+$color-delete: $color-accent;
+$color-edit: $color-primary;
+$color-error: $color-accent;
+$color-save: $color-primary;
+$color-background-active: scale-color($color-accent, $alpha: -85%);
+$color-background-delete: scale-color($color-accent, $alpha: -85%);
+$color-background-duplicate: scale-color($color-primary, $alpha: -85%);
+$color-background-edit: scale-color($color-primary, $alpha: -85%);
