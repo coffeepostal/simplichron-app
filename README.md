@@ -1,5 +1,7 @@
 # SimpliChron
 
-## A simple time tracker for busy people.
+## THIS APP IS STILL VERY MUCH IN BETA
 
-### Built on [Electron](https://electronjs.org/)
+### A simple time tracker for busy people.
+
+#### Built on [Electron](https://electronjs.org/)
